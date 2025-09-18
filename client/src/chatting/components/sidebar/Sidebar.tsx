@@ -3,7 +3,7 @@ import ChattingSearch from "./ChattingSearch";
 
 const Sidebar = () => {
   return (
-    <aside className="max-w-80 w-auto sm:p-2 lg:p-1 overflow-hidden border-r-[0.5px] border-[#0000001A]">
+    <aside className="w-full sm:max-w-64 md:max-w-80 p-2 sm:p-1 overflow-hidden sm:border-r-[1px] border-[#000000C7]">
       <div>
         <ChattingSearch />
         <div className="flex flex-col mt-2 flex-1 items-start overflow-y-auto h-[calc(100vh-12rem)] no-scrollbar overflow-scroll">
