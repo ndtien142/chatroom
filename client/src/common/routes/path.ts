@@ -20,4 +20,9 @@ export const PATH_PAGE = {
 
 export const PATH_MAIN = {
   root: "/",
+  chatting: {
+    root: "/chatting",
+    room: "/chatting/room",
+    detailRoom: "/chatting/room/:roomId",
+  },
 };

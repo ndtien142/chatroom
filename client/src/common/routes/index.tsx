@@ -42,6 +42,21 @@ export default function Router() {
     {
       path: PATH_MAIN.root,
       element: <LogoOnlyLayout />,
+      children: [
+        {
+          path: PATH_MAIN.chatting.root,
+          children: [
+            {
+              path: PATH_MAIN.chatting.root,
+              element: <Navigate to={PATH_MAIN.chatting.room} replace />,
+            },
+            {
+              path: PATH_MAIN.chatting.room,
+              element: <ChattingContainer />,
+            },
+          ],
+        },
+      ],
     },
   ]);
 }
@@ -53,3 +68,6 @@ const AuthLayout = Loadable(lazy(() => import("../layout/AuthLayout")));
 // Authentication
 const Login = Loadable(lazy(() => import("../../auth/login")));
 const Signup = Loadable(lazy(() => import("../../auth/signup")));
+
+// Chatting
+const ChattingContainer = Loadable(lazy(() => import("../../chatting")));
