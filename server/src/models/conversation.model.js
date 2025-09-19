@@ -43,7 +43,8 @@ const conversationSchema = new Schema(
             },
         ],
         lastMessage: { type: Schema.Types.ObjectId, ref: 'Message' },
-        createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        nameLastUserSent: { type: String },
+        createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
     },
     {
         timestamps: true,

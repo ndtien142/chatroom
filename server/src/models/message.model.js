@@ -41,6 +41,13 @@ const messageSchema = new Schema(
                 reactedAt: { type: Date, default: Date.now },
             },
         ],
+        readBy: [
+            {
+                userId: { type: Schema.Types.ObjectId, ref: 'User' },
+                emoji: String,
+                readAt: { type: Date, default: Date.now },
+            },
+        ],
         isDeleted: {
             type: Boolean,
             default: false,

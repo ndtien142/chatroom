@@ -1,23 +1,4 @@
-export interface IChattingMSGProps {
-  avatar: string[];
-  status: string;
-  title: string;
-  timeLatestSent: string;
-  msgLatest: {
-    name: string;
-    msg: string;
-  };
-  unread: number;
-  isMute: boolean;
-}
-
-export interface IChattingState {
-  selectedUserOrGroup: string | null;
-  messages: [];
-  users: [];
-  isUsersLoading: boolean;
-  isMessageLoading: boolean;
-}
+import type { IMeta } from "@/common/@types/common.interface";
 
 export interface IAttachment {
   type: string;
@@ -26,17 +7,58 @@ export interface IAttachment {
 }
 
 export interface IChatMessage {
-  sender: string;
-  timestamp: string;
-  message: string;
+  _id: string;
+  senderId: string;
+  senderName: string;
   avatarUrl: string;
+  timestamp: string;
+  content: string;
   isSender: boolean;
-  attachment?: IAttachment;
+  attachments?: IAttachment[];
 }
 
-export interface IChatroomInfo {
-  title: string;
-  subtitle: string;
-  image: string;
-  imageBackground: string;
+export interface IUser {
+  _id: string;
+  name: string;
+  username: string;
+  avatar: string;
+  online: boolean;
+}
+
+export interface IChattingState {
+  selectedUserOrGroup: string | null;
+  messages: IChatMessage[];
+  users: IUser[];
+  isUsersLoading: boolean;
+  isMessageLoading: boolean;
+}
+
+export interface IGetListUserParams {
+  page: number;
+  limit: number;
+  searchText: string;
+}
+
+export interface IListUserConversationResponse {
+  message: string;
+  status: number;
+  metadata: { items: IUserConversationItem[]; meta: IMeta };
+}
+
+export interface IUserConversationItem {
+  _id: string;
+  avatar: string;
+  name: string;
+  createdAt: string;
+  type: "direct" | "group";
+  updatedAt: string;
+  lastMessage: string;
+  participants: IListParticipantItem[];
+}
+
+export interface IListParticipantItem {
+  joinedAt: string;
+  role: "member" | "admin";
+  userId: string;
+  _id: string;
 }

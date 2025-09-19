@@ -7,18 +7,35 @@ const { convertToObjectMongodb } = require('../utils');
 
 class ChatService {
     // Get list conversation user participants
-    async getSidebarConversations({ userId, page = 1, limit = 20 }) {
+    static async getSidebarConversations({ userId, page = 1, limit = 20 }) {
+        console.log('user id::', userId);
         const skip = (page - 1) * limit;
-        return conversationModel
-            .find({ participants: convertToObjectMongodb(userId) })
+        const conversations = await conversationModel
+            .find({
+                'participants.userId': userId,
+            })
             .populate('lastMessage', 'text sender createdAt')
             .sort({ updatedAt: -1 })
             .skip(skip)
             .limit(limit)
             .lean();
+
+        const totalConversations = await conversationModel.countDocuments({
+            'participants.userId': userId,
+        });
+        const totalPages = Math.ceil(totalConversations / limit);
+        return {
+            items: conversations,
+            meta: {
+                totalPages,
+                totalItems: +totalConversations,
+                currentPage: +page,
+                itemPerPage: +limit,
+            },
+        };
     }
     // Get list user
-    async getAllUser({ userId, page = 1, limit = 20 }) {
+    static async getAllUser({ userId, page = 1, limit = 20 }) {
         const skip = (page - 1) * limit;
         return userModel
             .find({ _id: { $ne: convertToObjectMongodb(userId) } })
@@ -29,36 +46,46 @@ class ChatService {
     }
 
     // find or create new conversation
-    async findOrCreatePrivate({ userId, recipientId }) {
+    static async findOrCreatePrivate({ userId, recipientId }) {
         const foundConversation = await conversationModel.findOne({
-            type: 'private',
-            participants: {
-                $all: [
-                    convertToObjectMongodb(userId),
-                    convertToObjectMongodb(recipientId),
-                ],
-                $size: 2,
-            },
+            $and: [
+                { type: 'direct' },
+                {
+                    'participants.userId': {
+                        $all: [
+                            convertToObjectMongodb(userId),
+                            convertToObjectMongodb(recipientId),
+                        ],
+                    },
+                },
+                { participants: { $size: 2 } },
+            ],
         });
 
         if (!foundConversation) {
             return await conversationModel.create({
-                type: 'private',
+                type: 'direct',
                 participants: [
-                    convertToObjectMongodb(userId),
-                    convertToObjectMongodb(recipientId),
+                    {
+                        userId: convertToObjectMongodb(userId),
+                        role: 'member',
+                        joinedAt: new Date(),
+                    },
+                    {
+                        userId: convertToObjectMongodb(recipientId),
+                        role: 'member',
+                        joinedAt: new Date(),
+                    },
                 ],
             });
         }
         return foundConversation;
     }
     // Get message
-    async getMessages({ conversationId, page = 1, limit = 20 }) {
+    static async getMessages({ conversationId, page = 1, limit = 20 }) {
         const skip = (page - 1) * limit;
         return messageModel
-            .find({
-                conversationId: convertToObjectMongodb(conversationId),
-            })
+            .find({ conversationId: convertToObjectMongodb(conversationId) })
             .populate('sender', 'name username avatar')
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -67,7 +94,12 @@ class ChatService {
     }
 
     // create new message
-    async createMessage({ conversationId, senderId, text, attachments = [] }) {
+    static async createMessage({
+        conversationId,
+        senderId,
+        text,
+        attachments = [],
+    }) {
         const msg = await messageModel.create({
             conversationId: convertToObjectMongodb(conversationId),
             sender: convertToObjectMongodb(senderId),
