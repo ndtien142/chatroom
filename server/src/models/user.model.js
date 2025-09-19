@@ -35,6 +35,8 @@ var userSchema = new Schema(
             type: Schema.Types.Boolean,
             default: false,
         },
+        lastActiveAt: { type: Date },
+        online: { type: Boolean, default: false, index: true },
         roles: {
             type: Array,
             default: [],
