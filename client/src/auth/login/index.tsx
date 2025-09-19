@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 // React Icon
 import { BiArrowBack } from "react-icons/bi";
 // Router
-import { PATH_AUTH } from "@/common/routes/path";
+import { PATH_AUTH, PATH_MAIN } from "@/common/routes/path";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -12,6 +12,8 @@ import { loginSchema } from "./login.schema";
 import type { ILoginForm } from "./login.interface";
 import { isDesktop } from "react-device-detect";
 import { CenteredContainer } from "@/common/components/CenteredContainer";
+import { useAuth } from "../hooks/useAuth";
+import { useToast } from "@/common/hooks/useToast";
 
 const LoginContainer = () => {
   const navigate = useNavigate();
@@ -23,13 +25,30 @@ const LoginContainer = () => {
     resolver: yupResolver(loginSchema),
   });
 
+  const { showErrorMessage, showSuccessMessage } = useToast();
+
+  const { mutate } = useAuth({
+    onSuccess() {
+      showSuccessMessage("Login Successfully");
+      navigate(PATH_MAIN.chatting.root);
+    },
+    onError() {
+      showErrorMessage("Something went wrong!");
+    },
+  });
+
   const onSubmit = (data: ILoginForm) => {
     console.log("data: ", data);
+    mutate(data);
   };
 
   const handleForgotPassword = () => {
     // Navigate to forgot password page
     navigate(PATH_AUTH.forgotPassword);
+  };
+
+  const handleSignup = () => {
+    navigate(PATH_AUTH.signUp);
   };
 
   const handleGoBack = () => {
@@ -98,6 +117,16 @@ const LoginContainer = () => {
               className="text-primary font-semibold inline-block p-0 text-[16px]"
             >
               Reset it here
+            </Button>
+          </p>
+          <p className="text-nowrap text-[16px]">
+            Don't have account?{" "}
+            <Button
+              onClick={handleSignup}
+              variant={"link"}
+              className="text-primary font-semibold inline-block p-0 text-[16px]"
+            >
+              Register it here
             </Button>
           </p>
         </div>

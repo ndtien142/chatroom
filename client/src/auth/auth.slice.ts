@@ -1,25 +1,33 @@
+import type { IUserInfo } from "@/common/@types/user.interface";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 interface IAuthState {
-  isAuthentication: boolean;
+  isAuthenticated: boolean;
   isSignUp: boolean;
   accessToken: string;
   refreshToken: string;
+  userInfo: IUserInfo;
 }
 
 const initialState: IAuthState = {
-  isAuthentication: false,
+  isAuthenticated: false,
   isSignUp: false,
   accessToken: "",
   refreshToken: "",
+  userInfo: {
+    _id: "",
+    avatar: "",
+    name: "",
+    username: "",
+  },
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setIsAuthentication: (state, action: PayloadAction<boolean>) => {
-      state.isAuthentication = action.payload;
+    setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
+      state.isAuthenticated = action.payload;
     },
     setAccessToken: (state, action: PayloadAction<string>) => {
       state.accessToken = action.payload;
@@ -27,15 +35,30 @@ const authSlice = createSlice({
     setRefreshToken: (state, action: PayloadAction<string>) => {
       state.refreshToken = action.payload;
     },
+    setUser: (state, action: PayloadAction<IUserInfo>) => {
+      state.userInfo = action.payload;
+    },
     setLogout: (state) => {
       state.accessToken = "";
       state.refreshToken = "";
-      state.isAuthentication = false;
+      state.isAuthenticated = false;
       state.isSignUp = false;
+      state.userInfo = {
+        _id: "",
+        avatar: "",
+        name: "",
+        username: "",
+      };
     },
   },
 });
 
-export const { setIsAuthentication } = authSlice.actions;
+export const {
+  setIsAuthenticated,
+  setAccessToken,
+  setRefreshToken,
+  setUser,
+  setLogout,
+} = authSlice.actions;
 
 export default authSlice.reducer;

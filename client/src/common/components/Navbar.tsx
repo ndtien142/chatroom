@@ -1,15 +1,29 @@
 import { BiMessageSquare } from "react-icons/bi";
 import { IoSettings } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "../redux/store";
 import { LogOut, User } from "lucide-react";
+import { useLogout } from "@/auth/hooks/useLogout";
+import { useToast } from "../hooks/useToast";
 
 const Navbar = () => {
-  const isAuthentication = useSelector(
-    (state) => state.authLogin.isAuthentication
+  const isAuthenticated = useSelector(
+    (state) => state.authLogin.isAuthenticated
   );
+  const navigate = useNavigate();
+  const { showErrorMessage, showSuccessMessage } = useToast();
+  const { mutate } = useLogout({
+    onError: () => {
+      showErrorMessage("Something went wrong!");
+    },
+    onSuccess: () => {
+      showSuccessMessage("Logout Successfully!");
+      navigate("/");
+    },
+  });
   const handleLogout = () => {
     // call api logout
+    mutate();
   };
   return (
     <header
@@ -39,7 +53,7 @@ const Navbar = () => {
               <span className="hidden sm:inline">Settings</span>
             </Link>
 
-            {isAuthentication && (
+            {isAuthenticated && (
               <>
                 <Link
                   to={"/profile"}

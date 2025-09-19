@@ -1,6 +1,8 @@
 import { lazy, Suspense, type ElementType, type JSX } from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import { PATH_AUTH, PATH_MAIN } from "./path";
+import GuestGuard from "../components/guards/GuestGuard";
+import AuthGuard from "../components/guards/AuthGuard";
 
 const Loadable =
   (Component: ElementType) => (props: JSX.IntrinsicAttributes) => {
@@ -20,11 +22,19 @@ export default function Router() {
       children: [
         {
           path: PATH_AUTH.login,
-          element: <Login />,
+          element: (
+            <GuestGuard>
+              <Login />
+            </GuestGuard>
+          ),
         },
         {
           path: PATH_AUTH.signUp,
-          element: <Signup />,
+          element: (
+            <GuestGuard>
+              <Signup />
+            </GuestGuard>
+          ),
         },
       ],
     },
@@ -41,7 +51,11 @@ export default function Router() {
     },
     {
       path: PATH_MAIN.root,
-      element: <LogoOnlyLayout />,
+      element: (
+        <AuthGuard>
+          <LogoOnlyLayout />
+        </AuthGuard>
+      ),
       children: [
         {
           path: PATH_MAIN.chatting.root,

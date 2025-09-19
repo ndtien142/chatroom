@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 // Router
-import { PATH_AUTH } from "@/common/routes/path";
+import { PATH_AUTH, PATH_MAIN } from "@/common/routes/path";
 import { useNavigate } from "react-router-dom";
 import { CenteredContainer } from "@/common/components/CenteredContainer";
 import { isDesktop } from "react-device-detect";
@@ -14,6 +14,8 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signupSchema } from "./signup.schema";
 import type { ISignupForm } from "./signup.interface";
+import { useSignup } from "../hooks/useSignup";
+import { useToast } from "@/common/hooks/useToast";
 
 const SignupContainer = () => {
   const [show, setShow] = useState(false);
@@ -26,6 +28,18 @@ const SignupContainer = () => {
     navigate(PATH_AUTH.login);
   };
 
+  const { showErrorMessage, showSuccessMessage } = useToast();
+
+  const { mutate } = useSignup({
+    onError: () => {
+      showErrorMessage("Something went wrong");
+    },
+    onSuccess: () => {
+      showSuccessMessage("Sign Up Successfully!");
+      navigate(PATH_MAIN.chatting.root);
+    },
+  });
+
   const handleGoBack = () => {
     console.log("Go back to");
     navigate(PATH_AUTH.login);
@@ -33,6 +47,7 @@ const SignupContainer = () => {
 
   const onSubmit = (data: ISignupForm) => {
     console.log("data: ", data);
+    mutate(data);
   };
 
   return (
@@ -111,7 +126,7 @@ const SignupContainer = () => {
             </div>
             <div className="flex flex-col space-y-1.5 mt-[10px]">
               <Button className="w-full rounded-[68px] text-white capitalize text-[14px] font-semibold bg-[#A53385] hover:bg-[#A53385B3]">
-                Sign Up With Email
+                Sign Up With Username
               </Button>
             </div>
           </div>
