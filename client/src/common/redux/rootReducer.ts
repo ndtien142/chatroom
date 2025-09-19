@@ -9,7 +9,7 @@ const rootPersistConfig = {
   key: "root",
   storage,
   keyPrefix: "redux-",
-  whitelist: ["auth"],
+  whitelist: ["authLogin"],
 };
 
 const rootReducer = combineReducers({
