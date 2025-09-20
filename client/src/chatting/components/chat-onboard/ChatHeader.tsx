@@ -7,7 +7,7 @@ const ChatHeader = () => {
 
   return (
     <div className="flex items-center justify-between p-4">
-      <h1 className="text-[20px] font-bold">New chatting</h1>
+      <h1 className="text-[20px] font-bold"></h1>
       <IoImageOutline
         size={30}
         onClick={() => navigate(PATH_MAIN.chatting.room)}

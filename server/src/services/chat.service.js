@@ -1,6 +1,7 @@
 'use strict';
 
 const { NotFoundError } = require('../core/error.response');
+const { userSocketMap, io } = require('../lib/socket.lib');
 const conversationModel = require('../models/conversation.model');
 const messageModel = require('../models/message.model');
 const userModel = require('../models/user.model');
@@ -14,10 +15,10 @@ class ChatService {
             .find({
                 'participants.userId': userId,
             })
-            .populate('lastMessage', 'content sender createdAt')
-            .sort({ updatedAt: -1 })
             .skip(skip)
             .limit(limit)
+            .sort({ updatedAt: -1 })
+            .populate('lastMessage', 'content sender createdAt')
             .lean();
 
         const totalConversations = await conversationModel.countDocuments({
@@ -86,12 +87,13 @@ class ChatService {
         if (conversationId == '')
             return NotFoundError('Not found conversation');
         const skip = (page - 1) * limit;
+        console.log('page + limit', page, limit);
         const listMessage = await messageModel
             .find({ conversationId: convertToObjectMongodb(conversationId) })
-            .populate('senderId', 'name username avatar')
-            .sort({ createdAt: 1 })
             .skip(skip)
             .limit(limit)
+            .sort({ createdAt: -1 })
+            .populate('senderId', 'name username avatar')
             .lean();
         const totalMessages = await messageModel.countDocuments({
             conversationId: convertToObjectMongodb(conversationId),
@@ -128,6 +130,17 @@ class ChatService {
             updatedAt: new Date(),
         });
 
+        const populatedMsg = await conversationModel
+            .findById(conversationId)
+            .populate('participants.userId', 'name username avatar')
+            .lean();
+        populatedMsg?.participants?.forEach((item) => {
+            const socketId = userSocketMap[item.userId._id];
+            if (socketId) {
+                io.to(socketId).emit('receive_message', msg);
+                console.log('send');
+            }
+        });
         return msg;
     }
 }

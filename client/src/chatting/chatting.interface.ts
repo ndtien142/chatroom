@@ -85,6 +85,7 @@ export interface IMessageItem {
   attachments: IAttachment;
   isDeleted: boolean;
   readBy: [];
+  createdAt: string;
 }
 
 export interface IAttachment {

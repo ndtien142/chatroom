@@ -21,7 +21,7 @@ const MessageList = () => {
 
     if (el.scrollTop === 0) {
       const oldHeight = el.scrollHeight;
-
+      console.log("fetch page");
       fetchNextPage().then(() => {
         if (listRef.current) {
           listRef.current.scrollTop = listRef.current.scrollHeight - oldHeight;
@@ -36,7 +36,12 @@ const MessageList = () => {
     }
   }, [selectedConversation]);
 
-  const messages = data?.pages?.flatMap((page) => page.metadata.items);
+  const messages = data?.pages
+    ?.flatMap((page) => page.metadata.items)
+    .sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
 
   return (
     <div
@@ -49,9 +54,9 @@ const MessageList = () => {
           <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
-      {messages?.map((msg) => (
-        <MessageBubble key={msg._id} message={msg} />
-      ))}
+      {messages?.map((msg, idx) => {
+        return <MessageBubble key={`${msg._id}+${idx}`} message={msg} />;
+      })}
     </div>
   );
 };
