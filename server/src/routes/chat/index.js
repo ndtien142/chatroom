@@ -4,7 +4,10 @@ const express = require('express');
 const asyncHandler = require('../../middleware/asyncHandler');
 const chatController = require('../../controllers/chat.controller');
 const { authentication } = require('../../auth/authUtils');
+const multer = require('multer');
+
 const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
 
 router.use(authentication);
 
@@ -23,5 +26,9 @@ router.get(
     '/messages/:conversationId',
     asyncHandler(chatController.getMessages),
 );
-router.post('/messages', asyncHandler(chatController.sendMessage));
+router.post(
+    '/messages',
+    upload.single('attachment'),
+    asyncHandler(chatController.sendMessage),
+);
 module.exports = router;

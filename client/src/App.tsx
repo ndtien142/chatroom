@@ -2,6 +2,7 @@ import "./App.css";
 import Router from "./common/routes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function App() {
   const queryClient = new QueryClient({
@@ -26,6 +27,7 @@ function App() {
         position="top-right"
         duration={2000}
       />
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

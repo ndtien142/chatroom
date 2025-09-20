@@ -23,17 +23,15 @@ const messageSchema = new Schema(
             type: String,
             trim: true,
         },
-        attachments: [
-            {
-                type: {
-                    type: String,
-                    enum: ['image', 'file', 'video', 'audio'],
-                },
-                url: String,
-                size: Number,
-                name: String,
+        attachment: {
+            type: {
+                type: String,
+                enum: ['image', 'file', 'video', 'audio'],
             },
-        ],
+            url: String,
+            size: Number,
+            name: String,
+        },
         reactions: [
             {
                 userId: { type: Schema.Types.ObjectId, ref: 'User' },

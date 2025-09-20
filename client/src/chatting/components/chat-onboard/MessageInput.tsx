@@ -8,6 +8,7 @@ import { FaPaperPlane } from "react-icons/fa";
 
 const MessageInput = () => {
   const [input, setInput] = useState("");
+  const { showErrorMessage } = useToast();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -17,14 +18,20 @@ const MessageInput = () => {
 
   const { mutate } = useSendMessage();
 
-  const { showErrorMessage } = useToast();
-
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+    if (file.size > MAX_SIZE) {
+      showErrorMessage("Maximum file 5MB");
+      e.target.value = ""; // reset input
+      return;
+    }
+
     if (!file.type.startsWith("image/")) {
-      alert("Please select the correct image format");
+      showErrorMessage("We only support image");
+      e.target.value = "";
       return;
     }
 
@@ -42,24 +49,27 @@ const MessageInput = () => {
     }
   };
 
-  const handleSendMessage = async (e?: React.FormEvent | React.MouseEvent) => {
+  const handleSendMessage = (e?: React.FormEvent | React.MouseEvent) => {
     e?.preventDefault();
 
     if (!selectedConversation) {
       showErrorMessage("Please select a conversation!");
       return;
     }
-    if (!input.trim() && !imagePreview) return;
+    if (!input.trim() && !fileInputRef.current?.files?.[0]) return;
 
-    try {
-      console.log("Sending:", { text: input.trim(), image: imagePreview });
-      setInput("");
-      mutate({ text: input.trim(), conversationId: selectedConversation });
-      setImagePreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (err) {
-      console.error("Send failed:", err);
-    }
+    const formData = new FormData();
+    formData.append("conversationId", selectedConversation);
+    if (input.trim()) formData.append("text", input.trim());
+
+    const file = fileInputRef.current?.files?.[0];
+    if (file) formData.append("attachment", file);
+
+    setInput("");
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    console.log("formdata from fe:", formData);
+    mutate(formData);
   };
 
   return (
@@ -81,42 +91,43 @@ const MessageInput = () => {
           </button>
         </div>
       )}
+      <div className="relate flex flex-col">
+        <div className="flex items-center justify-between relative gap-3">
+          <Input
+            placeholder="Message"
+            className="rounded-[86px] outline-none border-none bg-[#00000042] placeholder:text-white text-[16px] px-3 py-2 focus-visible:outline-none focus-visible:ring-0"
+            value={input}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setInput(e.target.value)
+            }
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+              e.key === "Enter" && handleSendMessage(e)
+            }
+          />
 
-      <div className="flex items-center justify-between relative gap-3">
-        <Input
-          placeholder="Message"
-          className="rounded-[86px] outline-none border-none bg-[#00000042] placeholder:text-white text-[16px] px-3 py-2 focus-visible:outline-none focus-visible:ring-0"
-          value={input}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setInput(e.target.value)
-          }
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
-            e.key === "Enter" && handleSendMessage(e)
-          }
-        />
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            className="hidden"
+          />
 
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleImageChange}
-          className="hidden"
-        />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="w-8 h-8 bg-gray-300 flex items-center justify-center rounded-[12px]"
+          >
+            📷
+          </button>
 
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="w-8 h-8 bg-gray-300 flex items-center justify-center rounded-[12px]"
-        >
-          📷
-        </button>
-
-        <div
-          className="w-8 h-8 bg-[#FF9BE3] flex items-center justify-center rounded-[12px] p-2
+          <div
+            className="w-8 h-8 bg-[#FF9BE3] flex items-center justify-center rounded-[12px] p-2
                      cursor-pointer disabled:opacity-50"
-          onClick={handleSendMessage}
-        >
-          <FaPaperPlane size={18} />
+            onClick={handleSendMessage}
+          >
+            <FaPaperPlane size={18} />
+          </div>
         </div>
       </div>
     </div>

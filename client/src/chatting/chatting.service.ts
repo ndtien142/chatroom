@@ -1,6 +1,5 @@
 import axiosInstance from "@/common/utils/axios";
 import type {
-  IFormSendMessage,
   IGetListUserParams,
   IGetMessageParams,
   IListMessageResponse,
@@ -25,6 +24,8 @@ export const getMessage = (params: IGetMessageParams) => {
   });
 };
 
-export const sendMessage = (data: IFormSendMessage) => {
-  return axiosInstance.post(API_MESSAGE, data);
+export const sendMessage = (data: FormData) => {
+  return axiosInstance.post(API_MESSAGE, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 };

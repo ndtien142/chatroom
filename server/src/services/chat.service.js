@@ -1,6 +1,7 @@
 'use strict';
 
 const { NotFoundError } = require('../core/error.response');
+const cloudinary = require('../lib/cloudinary.lib');
 const { userSocketMap, io } = require('../lib/socket.lib');
 const conversationModel = require('../models/conversation.model');
 const messageModel = require('../models/message.model');
@@ -111,36 +112,50 @@ class ChatService {
     }
 
     // create new message
-    static async createMessage({
-        conversationId,
-        senderId,
-        text,
-        attachments = [],
-    }) {
+    static async createMessage({ conversationId, senderId, text, file }) {
+        let attachmentData = null;
+        console.log('file::', file);
+        if (file) {
+            const uploadRes = await cloudinary.uploader.upload(file.path, {
+                folder: 'chat_attachments',
+                resource_type: 'auto',
+            });
+
+            console.log('res:::', uploadRes);
+
+            attachmentData = {
+                name: file.originalname,
+                size: file.size,
+                type: file.mimetype.startsWith('image') ? 'image' : 'file',
+                url: uploadRes.secure_url,
+            };
+        }
+
+        console.log('attachemntdata:::: ', attachmentData);
+
         const msg = await messageModel.create({
             conversationId: convertToObjectMongodb(conversationId),
             senderId: convertToObjectMongodb(senderId),
             content: text,
-            attachments,
+            attachment: attachmentData,
         });
 
-        // update lastMessage and updatedAt
         await conversationModel.findByIdAndUpdate(conversationId, {
             lastMessage: msg._id,
             updatedAt: new Date(),
         });
 
-        const populatedMsg = await conversationModel
+        // emit socket
+        const conversation = await conversationModel
             .findById(conversationId)
             .populate('participants.userId', 'name username avatar')
             .lean();
-        populatedMsg?.participants?.forEach((item) => {
-            const socketId = userSocketMap[item.userId._id];
-            if (socketId) {
-                io.to(socketId).emit('receive_message', msg);
-                console.log('send');
-            }
+
+        conversation.participants.forEach((p) => {
+            const socketId = userSocketMap[p.userId._id];
+            if (socketId) io.to(socketId).emit('receive_message', msg);
         });
+
         return msg;
     }
 }

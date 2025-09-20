@@ -39,10 +39,10 @@ const MessageBubble = ({ message }: { message: IMessageItem }) => {
           {message.content || ""}
         </p>
 
-        {message.attachments && message.attachments.type === "image" && (
+        {message?.attachment && message.attachment?.type === "image" && (
           <div className="relative max-w-52 px-4 py-3">
             <img
-              src={message.attachments.url}
+              src={message.attachment?.url}
               alt="attachment"
               className={`rounded-[16px]`}
             />

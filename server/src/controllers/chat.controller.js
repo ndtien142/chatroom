@@ -59,13 +59,18 @@ class ChatController {
 
     // send message
     sendMessage = async (req, res) => {
-        const { conversationId, text, attachments } = req.body;
+        const { conversationId, text } = req.body;
+        const file = req.file;
+
+        console.log('req:::', req.file);
+
         const msg = await chatService.createMessage({
             conversationId,
             senderId: req.userId,
             text,
-            attachments,
+            file,
         });
+
         new SuccessResponse({
             message: 'Send message success',
             metadata: msg,

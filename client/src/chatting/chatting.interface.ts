@@ -98,4 +98,9 @@ export interface IAttachment {
 export interface IFormSendMessage {
   text: string;
   conversationId: string;
+  attachment: {
+    name: string;
+    size: number;
+    type: string;
+  };
 }
