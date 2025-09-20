@@ -3,7 +3,7 @@ import ChattingMSGItem from "./ChattingMSGItem";
 import ChattingSearch from "./ChattingSearch";
 
 const Sidebar = () => {
-  const { data } = useGetListUserSidebar({
+  const { data, isLoading } = useGetListUserSidebar({
     limit: 10,
     page: 1,
     searchText: "",
@@ -16,12 +16,13 @@ const Sidebar = () => {
       <div>
         <ChattingSearch />
         <div className="flex flex-col mt-2 flex-1 items-start overflow-y-auto h-[calc(100vh-12rem)] no-scrollbar overflow-scroll">
-          {conversation?.map((conversation, idx) => (
-            <ChattingMSGItem
-              key={`${conversation?._id} + ${idx}`}
-              conversation={conversation}
-            />
-          ))}
+          {!isLoading &&
+            conversation?.map((conversation, idx) => (
+              <ChattingMSGItem
+                key={`${conversation?._id} + ${idx}`}
+                conversation={conversation}
+              />
+            ))}
         </div>
       </div>
     </aside>

@@ -1,5 +1,6 @@
 'use strict';
 
+const { NotFoundError } = require('../core/error.response');
 const conversationModel = require('../models/conversation.model');
 const messageModel = require('../models/message.model');
 const userModel = require('../models/user.model');
@@ -8,13 +9,12 @@ const { convertToObjectMongodb } = require('../utils');
 class ChatService {
     // Get list conversation user participants
     static async getSidebarConversations({ userId, page = 1, limit = 20 }) {
-        console.log('user id::', userId);
         const skip = (page - 1) * limit;
         const conversations = await conversationModel
             .find({
                 'participants.userId': userId,
             })
-            .populate('lastMessage', 'text sender createdAt')
+            .populate('lastMessage', 'content sender createdAt')
             .sort({ updatedAt: -1 })
             .skip(skip)
             .limit(limit)
@@ -83,14 +83,29 @@ class ChatService {
     }
     // Get message
     static async getMessages({ conversationId, page = 1, limit = 20 }) {
+        if (conversationId == '')
+            return NotFoundError('Not found conversation');
         const skip = (page - 1) * limit;
-        return messageModel
+        const listMessage = await messageModel
             .find({ conversationId: convertToObjectMongodb(conversationId) })
-            .populate('sender', 'name username avatar')
-            .sort({ createdAt: -1 })
+            .populate('senderId', 'name username avatar')
+            .sort({ createdAt: 1 })
             .skip(skip)
             .limit(limit)
             .lean();
+        const totalMessages = await messageModel.countDocuments({
+            conversationId: convertToObjectMongodb(conversationId),
+        });
+        const totalPages = Math.ceil(totalMessages / limit);
+        return {
+            items: listMessage,
+            meta: {
+                totalPages,
+                totalItems: +totalMessages,
+                currentPage: +page,
+                itemPerPage: +limit,
+            },
+        };
     }
 
     // create new message
@@ -102,8 +117,8 @@ class ChatService {
     }) {
         const msg = await messageModel.create({
             conversationId: convertToObjectMongodb(conversationId),
-            sender: convertToObjectMongodb(senderId),
-            text,
+            senderId: convertToObjectMongodb(senderId),
+            content: text,
             attachments,
         });
 

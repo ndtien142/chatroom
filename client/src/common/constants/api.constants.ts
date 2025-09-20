@@ -4,3 +4,4 @@ export const API_SIGNUP = "/auth/signup";
 export const API_LOGOUT = "/auth/logout";
 
 export const API_CHATTING_USERS = "/chat/conversations";
+export const API_MESSAGE = "/chat/messages";

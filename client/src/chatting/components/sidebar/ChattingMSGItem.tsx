@@ -1,14 +1,28 @@
 // Types
 // React Icon
 import type { IUserConversationItem } from "@/chatting/chatting.interface";
+import { setSelectedConversation } from "@/chatting/chatting.slice";
+import { dispatch, useSelector } from "@/common/redux/store";
 
 const ChattingMSGItem = ({
   conversation,
 }: {
   conversation: IUserConversationItem;
 }) => {
+  const currentConversation = useSelector(
+    (state) => state.chatting?.selectedConversation
+  );
+  const handleSelectConversation = () => {
+    dispatch(setSelectedConversation(conversation?._id));
+  };
   return (
-    <div className="flex gap-2 w-full min-h-16 hover:bg-zinc-700/60 cursor-pointer px-1.5">
+    <div
+      onClick={handleSelectConversation}
+      className={`flex gap-2 w-full min-h-16 hover:bg-zinc-700/60 cursor-pointer px-1.5 rounded-md ${
+        currentConversation === conversation?._id &&
+        "background-color: bg-zinc-700/60"
+      }`}
+    >
       <div className="min-w-12 min-h-12 flex items-center justify-center relative">
         <div className="rounded-[50%] w-12 h-12 bg-blue-400">
           {/* Avatar */}
@@ -35,11 +49,15 @@ const ChattingMSGItem = ({
             <span className="text-[10px]">{timeLatestSent}</span>
           </div> */}
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between truncate">
           <div>
-            <span className="text-[14px]">{conversation?.name || ""}:</span>
+            <span className="text-[14px]">{conversation?.name || ""} : </span>
             <span className="text-[14px]">
-              {conversation?.lastMessage || ""}
+              {conversation?.lastMessage?.content
+                ? conversation.lastMessage.content.length > 20
+                  ? conversation.lastMessage.content.slice(0, 25) + "..."
+                  : conversation.lastMessage.content
+                : ""}
             </span>
           </div>
           {/* <div>

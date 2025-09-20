@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { IChattingState, IChatMessage, IUser } from "./chatting.interface";
 
 const initialState: IChattingState = {
-  selectedUserOrGroup: null,
+  selectedConversation: null,
   messages: [],
   users: [],
   isUsersLoading: false,
@@ -13,8 +13,8 @@ const chattingSlice = createSlice({
   name: "chatting",
   initialState,
   reducers: {
-    setSelectedUser: (state, action: PayloadAction<string | null>) => {
-      state.selectedUserOrGroup = action.payload;
+    setSelectedConversation: (state, action: PayloadAction<string | null>) => {
+      state.selectedConversation = action.payload;
       state.messages = []; // reset messages khi chọn user mới
     },
 
@@ -44,7 +44,7 @@ const chattingSlice = createSlice({
 });
 
 export const {
-  setSelectedUser,
+  setSelectedConversation,
   setUsers,
   setUsersLoading,
   setMessages,

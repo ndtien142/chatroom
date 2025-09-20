@@ -1,39 +1,42 @@
-import type { IChatMessage } from "@/chatting/chatting.interface";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
+import { useGetMessage } from "@/chatting/hooks/useGetMessage";
+import { useSelector } from "@/common/redux/store";
 
-interface Props {
-  messages: IChatMessage[];
-}
-
-const MessageList = ({ messages }: Props) => {
-  const [loadingMore, setLoadingMore] = useState(false);
+const MessageList = () => {
+  const selectedConversation = useSelector(
+    (state) => state.chatting.selectedConversation
+  );
   const listRef = useRef<HTMLDivElement>(null);
 
-  const handleScroll = async () => {
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetMessage({
+      conversationId: selectedConversation || "",
+      limit: 10,
+    });
+
+  const handleScroll = () => {
     const el = listRef.current;
-    if (!el || loadingMore) return;
+    if (!el || isFetchingNextPage || !hasNextPage) return;
 
     if (el.scrollTop === 0) {
-      setLoadingMore(true);
       const oldHeight = el.scrollHeight;
 
-      //   const older = await fetchOlderMessages();
-      //   messages.unshift(...older);
-
-      requestAnimationFrame(() => {
-        if (el) el.scrollTop = el.scrollHeight - oldHeight;
-        setLoadingMore(false);
+      fetchNextPage().then(() => {
+        if (listRef.current) {
+          listRef.current.scrollTop = listRef.current.scrollHeight - oldHeight;
+        }
       });
     }
   };
 
   useEffect(() => {
-    // will scroll to bottom 0 after mounted
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
     }
-  }, []);
+  }, [selectedConversation]);
+
+  const messages = data?.pages?.flatMap((page) => page.metadata.items);
 
   return (
     <div
@@ -41,9 +44,13 @@ const MessageList = ({ messages }: Props) => {
       onScroll={handleScroll}
       className="flex-1 w-full overflow-y-auto p-4 no-scrollbar"
     >
-      {loadingMore && <p className="text-center text-gray-500">Đang tải...</p>}
-      {messages.map((msg, idx) => (
-        <MessageBubble key={idx} message={msg} />
+      {isFetchingNextPage && (
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 mt-2">
+          <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+        </div>
+      )}
+      {messages?.map((msg) => (
+        <MessageBubble key={msg._id} message={msg} />
       ))}
     </div>
   );

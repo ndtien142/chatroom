@@ -44,7 +44,6 @@ const messageSchema = new Schema(
         readBy: [
             {
                 userId: { type: Schema.Types.ObjectId, ref: 'User' },
-                emoji: String,
                 readAt: { type: Date, default: Date.now },
             },
         ],

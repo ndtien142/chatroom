@@ -1,3 +1,6 @@
+import { useSendMessage } from "@/chatting/hooks/useSendMessage";
+import { useToast } from "@/common/hooks/useToast";
+import { useSelector } from "@/common/redux/store";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { useRef, useState, type ChangeEvent } from "react";
@@ -7,6 +10,14 @@ const MessageInput = () => {
   const [input, setInput] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const selectedConversation = useSelector(
+    (state) => state.chatting.selectedConversation
+  );
+
+  const { mutate } = useSendMessage();
+
+  const { showErrorMessage } = useToast();
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -33,11 +44,17 @@ const MessageInput = () => {
 
   const handleSendMessage = async (e?: React.FormEvent | React.MouseEvent) => {
     e?.preventDefault();
+
+    if (!selectedConversation) {
+      showErrorMessage("Please select a conversation!");
+      return;
+    }
     if (!input.trim() && !imagePreview) return;
 
     try {
       console.log("Sending:", { text: input.trim(), image: imagePreview });
       setInput("");
+      mutate({ text: input.trim(), conversationId: selectedConversation });
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err) {

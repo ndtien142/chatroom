@@ -2,7 +2,7 @@ import { combineReducers } from "redux";
 import storage from "redux-persist/lib/storage";
 
 import authReducer from "@/auth/auth.slice";
-import chattingReducer from "../../chatting";
+import chattingReducer from "../../chatting/chatting.slice";
 
 // ----------------------------------------------------------------------
 const rootPersistConfig = {
