@@ -4,7 +4,7 @@ import MessageInput from "./MessageInput";
 
 const ChatOnboard = () => {
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
+    <div className="flex flex-col h-[calc(100vh-8rem)] bg-zinc-900 rounded-r-2xl pb-2.5">
       <ChatHeader />
       <MessageList />
       <MessageInput />

@@ -3,11 +3,19 @@ import { Navigate, useRoutes } from "react-router-dom";
 import { PATH_AUTH, PATH_MAIN } from "./path";
 import GuestGuard from "../components/guards/GuestGuard";
 import AuthGuard from "../components/guards/AuthGuard";
+import { Loader2 } from "lucide-react";
+import { Forbidden, NotFound, ServerError } from "../components/error";
 
 const Loadable =
   (Component: ElementType) => (props: JSX.IntrinsicAttributes) => {
     return (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense
+        fallback={
+          <div className="fixed inset-0 flex items-center justify-center bg-zinc-900 dark:bg-black z-50">
+            <Loader2 className="animate-spin w-12 h-12 text-[#FF99E2]" />
+          </div>
+        }
+      >
         <Component {...props} />
       </Suspense>
     );
@@ -41,11 +49,10 @@ export default function Router() {
     // Main Routes
     {
       path: "*",
-      element: <span>Logo only layout</span>,
       children: [
-        { path: "500", element: <span>error page 500</span> },
-        { path: "404", element: <span>error page 404</span> },
-        { path: "403", element: <span>error page 403</span> },
+        { path: "500", element: <ServerError /> },
+        { path: "404", element: <NotFound /> },
+        { path: "403", element: <Forbidden /> },
         { path: "*", element: <Navigate to="/404" replace /> },
       ],
     },
@@ -64,10 +71,7 @@ export default function Router() {
               path: PATH_MAIN.chatting.root,
               element: <Navigate to={PATH_MAIN.chatting.room} replace />,
             },
-            {
-              path: PATH_MAIN.chatting.room,
-              element: <ChattingContainer />,
-            },
+            { path: PATH_MAIN.chatting.room, element: <ChattingContainer /> },
           ],
         },
       ],

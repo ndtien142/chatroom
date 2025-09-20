@@ -16,7 +16,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
   useChatSocket(userId);
   console.log("auth");
   if (!isAuthenticated) {
-    return <Navigate to={PATH_AUTH.login} />;
+    return <Navigate to={PATH_AUTH.login} replace />;
   }
   return <>{children}</>;
 };

@@ -12,7 +12,11 @@ export const useLogout = ({ onError, onSuccess }: ICallbackQuery) => {
         dispatch(setLogout());
         onSuccess();
       },
-      onError,
+      onError: (err: unknown) => {
+        console.log("err", err);
+        dispatch(setLogout());
+        onError();
+      },
     }),
   };
 };

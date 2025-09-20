@@ -5,6 +5,7 @@ import { useSelector } from "../redux/store";
 import { LogOut, User } from "lucide-react";
 import { useLogout } from "@/auth/hooks/useLogout";
 import { useToast } from "../hooks/useToast";
+import { PATH_MAIN } from "../routes/path";
 
 const Navbar = () => {
   const isAuthenticated = useSelector(
@@ -34,7 +35,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-full w-full">
           <div className="flex items-center gap-8">
             <Link
-              to="/"
+              to={`${PATH_MAIN.chatting.room}`}
               className="flex items-center gap-2.5 hover:opacity-80 transition-all"
             >
               <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">

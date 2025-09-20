@@ -3,11 +3,11 @@ import * as yup from "yup";
 export const signupSchema = yup.object().shape({
   name: yup
     .string()
-    .min(8, "Username must be at least 8 characters")
+    .min(3, "Username must be at least 8 characters")
     .required("Name is required"),
   username: yup
     .string()
-    .min(6, "Username must be at least 6 characters")
+    .min(8, "Username must be at least 8 characters")
     .required("Username is required"),
   password: yup
     .string()

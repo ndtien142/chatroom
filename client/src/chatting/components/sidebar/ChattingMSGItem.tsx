@@ -51,14 +51,20 @@ const ChattingMSGItem = ({
         </div>
         <div className="flex items-center justify-between truncate">
           <div>
-            <span className="text-[14px]">{conversation?.name || ""} : </span>
-            <span className="text-[14px]">
-              {conversation?.lastMessage?.content
-                ? conversation.lastMessage.content.length > 20
-                  ? conversation.lastMessage.content.slice(0, 25) + "..."
-                  : conversation.lastMessage.content
-                : ""}
-            </span>
+            {conversation?.lastMessage && (
+              <>
+                <span className="text-[14px]">
+                  {conversation?.lastMessage?.senderId?.name || ""} :{" "}
+                </span>
+                <span className="text-[14px]">
+                  {conversation?.lastMessage?.content
+                    ? conversation.lastMessage.content.length > 20
+                      ? conversation.lastMessage.content.slice(0, 25) + "..."
+                      : conversation.lastMessage.content
+                    : ""}
+                </span>
+              </>
+            )}
           </div>
           {/* <div>
             {unread && (
