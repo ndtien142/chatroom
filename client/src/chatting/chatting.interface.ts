@@ -87,7 +87,7 @@ export interface IMessageItem {
   };
   conversationId: string;
   content: string;
-  attachments: IAttachment;
+  attachment: IAttachment;
   isDeleted: boolean;
   readBy: [];
   createdAt: string;
