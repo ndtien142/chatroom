@@ -1,9 +1,10 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const config = require('../configs/config.mongodb');
 const {
     db: { uri },
-} = require('../configs/config.mongodb');
+} = config;
 
 class Database {
     constructor() {
