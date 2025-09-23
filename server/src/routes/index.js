@@ -10,5 +10,6 @@ router.use(permission('0000'));
 
 router.use('/v1/api/auth', require('./access'));
 router.use('/v1/api/chat', require('./chat'));
+router.use('/v1/api/user', require('./user'));
 
 module.exports = router;

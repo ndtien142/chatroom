@@ -31,4 +31,18 @@ router.post(
     upload.single('attachment'),
     asyncHandler(chatController.sendMessage),
 );
+
+// group chat
+router.post(
+    '/group',
+    upload.single('groupImage'),
+    asyncHandler(chatController.createGroupChat),
+);
+
+router.post('/group/:id/members', asyncHandler(chatController.addMembers));
+
+router.delete(
+    '/group/:id/members/:memberId',
+    asyncHandler(chatController.removeMember),
+);
 module.exports = router;

@@ -19,7 +19,14 @@ class ChatService {
             .skip(skip)
             .limit(limit)
             .sort({ updatedAt: -1 })
-            .populate('lastMessage', 'content sender createdAt')
+            .populate({
+                path: 'lastMessage',
+                select: 'content senderId createdAt',
+                populate: {
+                    path: 'senderId',
+                    select: 'name avatar email',
+                },
+            })
             .lean();
 
         const totalConversations = await conversationModel.countDocuments({
@@ -83,6 +90,114 @@ class ChatService {
         }
         return foundConversation;
     }
+    // create group chat
+    static async createGroupChat({
+        creatorId,
+        name,
+        memberIds = [],
+        groupImage,
+    }) {
+        if (!name) throw new BadRequestError('Group name is required');
+        let imageUrl = null;
+        if (groupImage) {
+            const uploadRes = await cloudinary.uploader.upload(
+                groupImage.path,
+                {
+                    folder: 'chat_group',
+                    resource_type: 'image',
+                },
+            );
+            imageUrl = uploadRes.secure_url;
+        }
+
+        console.log('image', imageUrl);
+
+        const memberSet = new Set(memberIds.map((id) => id.toString()));
+        memberSet.add(creatorId.toString());
+
+        const participants = [...memberSet].map((uid) => ({
+            userId: convertToObjectMongodb(uid),
+            role: uid === creatorId.toString() ? 'admin' : 'member',
+            joinedAt: new Date(),
+        }));
+
+        const group = await conversationModel.create({
+            type: 'group',
+            name,
+            groupImage: imageUrl,
+            participants,
+            avatar: imageUrl,
+        });
+
+        return group;
+    }
+    // Add member
+    static async addMembers({ conversationId, userIds, requesterId }) {
+        const conv = await conversationModel.findById(conversationId);
+        if (!conv) throw new NotFoundError('Conversation not found');
+        if (conv.type !== 'group')
+            throw new BadRequestError('Not a group chat');
+
+        const requester = conv.participants.find(
+            (p) => p.userId.toString() === requesterId,
+        );
+        if (!requester || !['admin'].includes(requester.role)) {
+            throw new BadRequestError('Not allowed to add members');
+        }
+
+        const existingIds = new Set(
+            conv.participants.map((p) => p.userId.toString()),
+        );
+        const newMembers = userIds
+            .filter((id) => !existingIds.has(id.toString()))
+            .map((id) => ({
+                userId: convertToObjectMongodb(id),
+                role: 'member',
+                joinedAt: new Date(),
+            }));
+
+        if (!newMembers.length) return conv;
+
+        conv.participants.push(...newMembers);
+        await conv.save();
+
+        newMembers.forEach((m) => {
+            const socketId = userSocketMap[m.userId];
+            if (socketId)
+                io.to(socketId).emit('added_to_group', { conversationId });
+        });
+
+        return conv;
+    }
+    static async removeMember({ conversationId, memberId, requesterId }) {
+        const conv = await conversationModel.findById(conversationId);
+        if (!conv) throw new NotFoundError('Conversation not found');
+        if (conv.type !== 'group')
+            throw new BadRequestError('Not a group chat');
+
+        const requester = conv.participants.find(
+            (p) => p.userId.toString() === requesterId,
+        );
+        if (!requester || !['admin'].includes(requester.role)) {
+            throw new BadRequestError('Not allowed to remove members');
+        }
+
+        const beforeCount = conv.participants.length;
+        conv.participants = conv.participants.filter(
+            (p) => p.userId.toString() !== memberId.toString(),
+        );
+        if (conv.participants.length === beforeCount) {
+            throw new NotFoundError('Member not found in group');
+        }
+        await conv.save();
+
+        // Gửi socket notify
+        const socketId = userSocketMap[memberId];
+        if (socketId)
+            io.to(socketId).emit('removed_from_group', { conversationId });
+
+        return conv;
+    }
     // Get message
     static async getMessages({ conversationId, page = 1, limit = 20 }) {
         if (conversationId == '')
@@ -140,10 +255,14 @@ class ChatService {
             attachment: attachmentData,
         });
 
-        await conversationModel.findByIdAndUpdate(conversationId, {
-            lastMessage: msg._id,
-            updatedAt: new Date(),
-        });
+        const update = await conversationModel.findByIdAndUpdate(
+            conversationId,
+            {
+                lastMessage: convertToObjectMongodb(msg._id),
+                updatedAt: new Date(),
+            },
+        );
+        console.log('update', update);
 
         // emit socket
         const conversation = await conversationModel

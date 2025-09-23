@@ -76,6 +76,42 @@ class ChatController {
             metadata: msg,
         }).send(res);
     };
+    async createGroupChat(req, res, next) {
+        const result = await chatService.createGroupChat({
+            creatorId: req.userId,
+            name: req.body.name,
+            memberIds: req.body.memberIds || [],
+            groupImage: req.file,
+        });
+        new SuccessResponse({
+            message: 'Group created',
+            metadata: result,
+        }).send(res);
+    }
+
+    async addMembers(req, res, next) {
+        const result = await chatService.addMembers({
+            conversationId: req.params.id,
+            userIds: req.body.userIds,
+            requesterId: req.userId,
+        });
+        new SuccessResponse({
+            message: 'Members added',
+            metadata: result,
+        }).send(res);
+    }
+
+    async removeMember(req, res, next) {
+        const result = await chatService.removeMember({
+            conversationId: req.params.id,
+            memberId: req.params.memberId,
+            requesterId: req.userId,
+        });
+        new SuccessResponse({
+            message: 'Member removed',
+            metadata: result,
+        }).send(res);
+    }
 }
 
 module.exports = new ChatController();

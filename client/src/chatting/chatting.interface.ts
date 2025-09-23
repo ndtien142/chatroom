@@ -50,6 +50,11 @@ export interface IUserConversationItem {
     _id: string;
     content: string;
     createdAt: string;
+    senderId: {
+      _id: string;
+      name: string;
+      avatar: string;
+    };
   };
   participants: IListParticipantItem[];
 }
@@ -102,5 +107,23 @@ export interface IFormSendMessage {
     name: string;
     size: number;
     type: string;
+  };
+}
+
+export interface ICreateGroupModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface IListUserParams {
+  page: number;
+  limit: number;
+  searchText: string;
+}
+
+export interface IListUserResponse {
+  message: string;
+  metadata: {
+    items: IUser[];
   };
 }
