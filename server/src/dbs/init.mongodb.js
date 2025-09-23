@@ -2,28 +2,27 @@
 
 const mongoose = require('mongoose');
 const {
-    db: { host, name, port },
+    db: { uri },
 } = require('../configs/config.mongodb');
-
-const connectString = `mongodb://${host}:${port}/${name}`;
-
-console.log(connectString);
 
 class Database {
     constructor() {
         this.connect();
     }
 
-    connect(type = 'mongodb') {
-        if (1 === 1) {
-            mongoose.set('debug', true);
-            mongoose.set('debug', { color: true });
-        }
+    connect() {
+        mongoose.set('debug', true);
+        mongoose.set('debug', { color: true });
+
+        console.log('uri:::', uri);
 
         mongoose
-            .connect(connectString)
-            .then(() => console.log('Connected MongoDB Successfully'))
-            .catch((err) => console.log(err));
+            .connect(uri, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            })
+            .then(() => console.log('Connected MongoDB Cloud Successfully'))
+            .catch((err) => console.log('MongoDB connection error:', err));
     }
 
     static getInstance() {

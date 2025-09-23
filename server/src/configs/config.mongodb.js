@@ -1,13 +1,9 @@
-'use strict';
-
 const dev = {
     app: {
         port: process.env.PORT || 3055,
     },
     db: {
-        host: process.env.DEV_DB_HOST || 'localhost',
-        port: process.env.DEV_DB_PORT || 27017,
-        name: process.env.DEV_DB_NAME || 'chattingDev',
+        uri: process.env.MONGO_URI || 'mongodb://localhost:27017/chattingDev',
     },
 };
 
@@ -16,9 +12,7 @@ const pro = {
         port: process.env.PORT || 3055,
     },
     db: {
-        host: process.env.PRO_DB_HOST || 'localhost',
-        port: process.env.PRO_DB_PORT || 27017,
-        name: process.env.PRO_DB_NAME || 'chattingPro',
+        uri: process.env.MONGO_URI || 'mongodb://localhost:27017/chattingPro',
     },
 };
 
