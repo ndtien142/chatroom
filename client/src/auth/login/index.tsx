@@ -1,8 +1,4 @@
-// Component
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-// React Icon
-import { BiArrowBack } from "react-icons/bi";
+import { useState } from "react";
 // Router
 import { PATH_AUTH, PATH_MAIN } from "@/common/routes/path";
 import { useNavigate } from "react-router-dom";
@@ -10,13 +6,12 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema } from "./login.schema";
 import type { ILoginForm } from "./login.interface";
-import { isDesktop } from "react-device-detect";
-import { CenteredContainer } from "@/common/components/CenteredContainer";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "@/common/hooks/useToast";
 
 const LoginContainer = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
@@ -38,100 +33,95 @@ const LoginContainer = () => {
   });
 
   const onSubmit = (data: ILoginForm) => {
-    console.log("data: ", data);
+    if (isLoading) return;
+    setIsLoading(true);
     mutate(data);
-  };
-
-  const handleForgotPassword = () => {
-    // Navigate to forgot password page
-    navigate(PATH_AUTH.forgotPassword);
+    setIsLoading(false);
   };
 
   const handleSignup = () => {
     navigate(PATH_AUTH.signUp);
   };
 
-  const handleGoBack = () => {
-    console.log("Go back to");
-    navigate(PATH_AUTH.signUp);
-  };
+  const inputClass =
+    "w-full bg-[#242424] text-gray-200 border border-gray-700 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-[#ff99e2] transition-colors";
+  const buttonClass =
+    "w-full bg-[#ff99e2] text-black font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 disabled:bg-pink-300/50 disabled:cursor-not-allowed disabled:scale-100";
 
   return (
-    <CenteredContainer>
-      <main className="w-full">
-        <div className="w-full flex items-center justify-between mb-12 min-w-[325px]">
-          {!isDesktop ? (
-            <BiArrowBack
-              size={"25px"}
-              onClick={handleGoBack}
-              className="cursor-pointer"
-            />
-          ) : (
-            <div className="w-6 h-6" />
-          )}
-          <h1 className="text-2xl font-semibold capitalize">Sign In</h1>
-          <div className="w-6 h-6" />
+    <main className="flex items-center justify-center min-h-screen bg-[#242424] text-gray-200 p-4 font-sans">
+      <div className="w-full max-w-md mx-auto bg-[#2F2F2F] p-8 rounded-2xl border border-gray-700/50 shadow-2xl shadow-black/30">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-white tracking-tight">
+            Welcome Back!
+          </h1>
+          <p className="text-gray-400 mt-2">Sign in to continue to Chatroom</p>
         </div>
-        <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid w-full items-center gap-3">
-            <div className="flex flex-col space-y-1.5">
-              <Input
-                id="username"
-                placeholder="Username"
-                type="text"
-                className="border-none bg-[#333333] rounded-none text-white placeholder:text-white text-[14px]"
-                {...register("username")}
-              />
-              {errors.username && (
-                <p className="text-red-500">{errors.username.message}</p>
-              )}
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Input
-                id="password"
-                placeholder="Password"
-                type="password"
-                className="border-none bg-[#333333] rounded-none text-white placeholder:text-white text-[14px]"
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="text-red-500">{errors.password.message}</p>
-              )}
-            </div>
-            <div className="flex flex-col space-y-1.5 mt-[10px]">
-              <Button
-                type="submit"
-                className="w-full rounded-[68px] text-white capitalize text-[14px] font-semibold bg-[#A53385] hover:bg-[#A53385B3]"
-              >
-                Sign In
-              </Button>
-            </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="text-left">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
+              Username
+            </label>
+            <input
+              id="username"
+              placeholder="your_username"
+              type="text"
+              required
+              className={inputClass}
+              autoComplete="username"
+              {...register("username")}
+            />
+            {errors?.username?.message && (
+              <p className="text-red-400 text-sm text-center bg-transparent pt-1.5 rounded-lg">
+                {errors.username.message}
+              </p>
+            )}
+          </div>
+          <div className="text-left">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              placeholder="••••••••"
+              type="password"
+              {...register("password")}
+              className={inputClass}
+            />
+            {errors?.password?.message && (
+              <p className="text-red-400 text-sm text-center bg-transparent pt-1.5 rounded-lg">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <button type="submit" disabled={isLoading} className={buttonClass}>
+              {isLoading ? "Processing..." : "Sign In"}
+            </button>
           </div>
         </form>
-        <div className="w-full mb-4">
-          <p className="text-nowrap text-[16px]">
-            Forgot your password?{" "}
-            <Button
-              onClick={handleForgotPassword}
-              variant={"link"}
-              className="text-primary font-semibold inline-block p-0 text-[16px]"
-            >
-              Reset it here
-            </Button>
-          </p>
-          <p className="text-nowrap text-[16px]">
-            Don't have account?{" "}
-            <Button
+
+        <div className="mt-6 text-center text-sm">
+          <p className="text-gray-400">
+            Don't have an account
+            <button
               onClick={handleSignup}
-              variant={"link"}
-              className="text-primary font-semibold inline-block p-0 text-[16px]"
+              className="font-semibold text-[#ff99e2] hover:underline bg-transparent border-none cursor-pointer p-0"
             >
-              Register it here
-            </Button>
+              Sign up
+            </button>
           </p>
         </div>
-      </main>
-    </CenteredContainer>
+      </div>
+    </main>
   );
 };
 
