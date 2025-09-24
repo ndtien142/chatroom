@@ -73,24 +73,26 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="w-full px-4 flex flex-col gap-2">
-      {imagePreview && (
-        <div className="relative w-24 h-24">
-          <img
-            src={imagePreview}
-            alt="preview"
-            className="w-24 h-24 object-cover rounded-lg border border-gray-300"
-          />
-          <button
-            type="button"
-            onClick={removeImage}
-            className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center
-                       bg-black/60 rounded-full text-white"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
+    <div className="p-4 bg-[#2F2F2F] border-t border-gray-700/50">
+      <div className="mb-2">
+        {imagePreview && (
+          <div className="relative w-24 h-24">
+            <img
+              src={imagePreview}
+              alt="preview"
+              className="w-24 h-24 object-cover rounded-lg border border-gray-300"
+            />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center
+            bg-black/60 rounded-full text-white"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
+      </div>
       <div className="relate flex flex-col">
         <div className="flex items-center justify-between relative gap-3">
           <Input

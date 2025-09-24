@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 
 export default function LogoOnlyLayout() {
   const isLogin = true;
@@ -12,11 +11,8 @@ export default function LogoOnlyLayout() {
     }
   }, []);
   return (
-    <>
-      <Navbar />
-      <div className="no-scrollbar overflow-scroll mt-16">
-        <Outlet />
-      </div>
-    </>
+    <div className="flex h-screen w-screen text-gray-200 antialiased overflow-hidden relative">
+      <Outlet />
+    </div>
   );
 }

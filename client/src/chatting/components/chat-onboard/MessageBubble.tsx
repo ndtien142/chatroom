@@ -1,53 +1,55 @@
 import type { IMessageItem } from "@/chatting/chatting.interface";
 import { useSelector } from "@/common/redux/store";
+import { formatTimestamp } from "@/common/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import MessageContent from "./MessageContent";
 
 const MessageBubble = ({ message }: { message: IMessageItem }) => {
   const currentUser = useSelector((state) => state.authLogin.userInfo._id);
-  const avatar = useSelector((state) => state.authLogin.userInfo.avatar);
-  const isSender =
-    currentUser === message?.senderId?._id ||
-    currentUser === (message?.senderId as unknown as string);
+  const isSender = currentUser === message?.senderId?._id;
+  const bubbleBg = isSender
+    ? "bg-[#ff99e2] text-black"
+    : "bg-[#3A3A3A] text-gray-100";
+  const bubbleRadius = isSender
+    ? "rounded-l-2xl rounded-tr-2xl"
+    : "rounded-r-2xl rounded-tl-2xl";
+
+  if (isSender) {
+    return (
+      <div className="flex justify-end items-end gap-3 my-2">
+        <div className="flex flex-col items-end">
+          <div
+            className={`${bubbleBg} ${bubbleRadius} max-w-sm md:max-w-md lg:max-w-lg overflow-hidden`}
+          >
+            <MessageContent {...message} />
+          </div>
+          <span className="text-xs text-gray-500 mt-1">
+            {formatTimestamp(message.createdAt)}
+          </span>
+        </div>
+        <Avatar>
+          <AvatarImage src={message?.senderId?._id} />
+          <AvatarFallback className="bg-zinc-800">AV</AvatarFallback>
+        </Avatar>
+      </div>
+    );
+  }
 
   return (
-    <div className={`flex ${isSender ? "justify-end" : "justify-start"} mb-2`}>
-      {!isSender ? (
-        avatar ? (
-          <img
-            src={avatar}
-            alt="avatar"
-            className="w-8 h-8 rounded-full object-cover mr-2"
-          />
-        ) : (
-          <div className="w-8 h-8 rounded-full object-cover mr-2 bg-[#5f74cf]" />
-        )
-      ) : (
-        <></>
-      )}
-
-      <div
-        className={`p-0 max-w-[300px] ${
-          isSender ? "bg-white text-black" : "bg-[#D1C5FF] text-black"
-        }`}
-        style={{
-          borderTopLeftRadius: "20px",
-          borderTopRightRadius: "20px",
-          borderBottomLeftRadius: isSender ? "20px" : "0px",
-          borderBottomRightRadius: isSender ? "0px" : "20px",
-        }}
-      >
-        <p className="font-[Inter] text-left px-4 py-3">
-          {message.content || ""}
-        </p>
-
-        {message?.attachment && message.attachment?.type === "image" && (
-          <div className="relative max-w-52 px-4 py-3">
-            <img
-              src={message.attachment?.url}
-              alt="attachment"
-              className={`rounded-[16px]`}
-            />
-          </div>
-        )}
+    <div className="flex justify-start items-end gap-3 my-2">
+      <Avatar>
+        <AvatarImage src={message?.senderId?._id} />
+        <AvatarFallback className="bg-zinc-700">AV</AvatarFallback>
+      </Avatar>
+      <div className="flex flex-col items-start">
+        <div
+          className={`${bubbleBg} ${bubbleRadius} max-w-sm md:max-w-md lg:max-w-lg overflow-hidden`}
+        >
+          <MessageContent {...message} />
+        </div>
+        <span className="text-xs text-gray-500 mt-1">
+          {formatTimestamp(message?.createdAt)}
+        </span>
       </div>
     </div>
   );
