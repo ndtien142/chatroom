@@ -2,13 +2,18 @@ import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
 import { useGetMessage } from "@/chatting/hooks/useGetMessage";
 import { useSelector } from "@/common/redux/store";
+import { useGetDetailConversation } from "@/chatting/hooks/useGetDetailConversation";
 
 const MessageList = () => {
   const selectedConversation = useSelector(
     (state) => state.chatting.selectedConversation
   );
-  const listRef = useRef<HTMLDivElement>(null);
+  const currentUser = useSelector((state) => state.authLogin.userInfo._id);
+  const { data: detailConversation } = useGetDetailConversation(
+    selectedConversation || ""
+  );
 
+  const listRef = useRef<HTMLDivElement>(null);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetMessage({
       conversationId: selectedConversation || "",
@@ -38,10 +43,7 @@ const MessageList = () => {
 
   const messages = data?.pages
     ?.flatMap((page) => page.metadata.items)
-    .sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
+    .reverse();
 
   return (
     <div
@@ -55,7 +57,20 @@ const MessageList = () => {
         </div>
       )}
       {messages?.map((msg, idx) => {
-        return <MessageBubble key={`${msg._id}+${idx}`} message={msg} />;
+        const isCurrentUser = msg.senderId?._id === currentUser;
+
+        const showSenderName =
+          detailConversation?.metadata?.type === "group" &&
+          !isCurrentUser &&
+          (idx === 0 || messages[idx - 1].senderId !== msg.senderId);
+        return (
+          <MessageBubble
+            isSender={isCurrentUser}
+            showSenderName={showSenderName ?? false}
+            key={`${msg._id}+${idx}`}
+            message={msg}
+          />
+        );
       })}
     </div>
   );

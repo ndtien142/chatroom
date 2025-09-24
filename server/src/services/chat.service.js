@@ -1,6 +1,6 @@
 'use strict';
 
-const { NotFoundError } = require('../core/error.response');
+const { NotFoundError, BadRequestError } = require('../core/error.response');
 const cloudinary = require('../lib/cloudinary.lib');
 const { userSocketMap, io } = require('../lib/socket.lib');
 const conversationModel = require('../models/conversation.model');
@@ -43,6 +43,33 @@ class ChatService {
             },
         };
     }
+
+    static async getDetailConversation({ conversationId }) {
+        if (!conversationId)
+            throw new BadRequestError('Conversation ID is required');
+
+        return await conversationModel
+            .findById(conversationId)
+            .populate({
+                path: 'participants.userId',
+                select: '_id name avatar email',
+            })
+            // populate thông tin last message
+            .populate({
+                path: 'lastMessage',
+                select: 'content senderId createdAt',
+                populate: {
+                    path: 'senderId',
+                    select: 'name avatar email',
+                },
+            })
+            .populate({
+                path: 'createdBy',
+                select: '_id name avatar',
+            })
+            .lean();
+    }
+
     // Get list user
     static async getAllUser({ userId, page = 1, limit = 20 }) {
         const skip = (page - 1) * limit;

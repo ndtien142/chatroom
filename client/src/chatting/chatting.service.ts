@@ -1,5 +1,6 @@
 import axiosInstance from "@/common/utils/axios";
 import type {
+  IDetailConversationResponse,
   IGetListUserParams,
   IGetMessageParams,
   IListMessageResponse,
@@ -19,6 +20,11 @@ export const getListUserSidebar = (params: IGetListUserParams) => {
     API_CHATTING_USERS,
     { params }
   );
+};
+
+export const getDetailConversation = (id: string) => {
+  const url = `${API_CHATTING_USERS}/${id}`;
+  return axiosInstance.get<unknown, IDetailConversationResponse>(url);
 };
 
 export const getMessage = (params: IGetMessageParams) => {

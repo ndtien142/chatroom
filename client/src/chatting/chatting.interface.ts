@@ -36,10 +36,10 @@ export interface IGetListUserParams {
 export interface IListUserConversationResponse {
   message: string;
   status: number;
-  metadata: { items: IUserConversationItem[]; meta: IMeta };
+  metadata: { items: IConversationItem[]; meta: IMeta };
 }
 
-export interface IUserConversationItem {
+export interface IConversationItem {
   _id: string;
   avatar: string;
   name: string;
@@ -126,4 +126,10 @@ export interface IListUserResponse {
   metadata: {
     items: IUser[];
   };
+}
+
+export interface IDetailConversationResponse {
+  message: string;
+  code: number;
+  metadata: IConversationItem;
 }

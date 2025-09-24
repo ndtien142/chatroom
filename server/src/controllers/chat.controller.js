@@ -17,6 +17,15 @@ class ChatController {
         }).send(res);
     };
 
+    getDetailConversation = async (req, res) => {
+        new SuccessResponse({
+            message: 'Get conversation success',
+            metadata: await chatService.getDetailConversation({
+                conversationId: req.params.id,
+            }),
+        }).send(res);
+    };
+
     // get user to create new conversation
     getUsers = async (req, res) => {
         const data = await chatService.getAllUser({

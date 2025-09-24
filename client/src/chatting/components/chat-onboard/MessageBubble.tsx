@@ -1,12 +1,17 @@
 import type { IMessageItem } from "@/chatting/chatting.interface";
-import { useSelector } from "@/common/redux/store";
 import { formatTimestamp } from "@/common/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import MessageContent from "./MessageContent";
 
-const MessageBubble = ({ message }: { message: IMessageItem }) => {
-  const currentUser = useSelector((state) => state.authLogin.userInfo._id);
-  const isSender = currentUser === message?.senderId?._id;
+const MessageBubble = ({
+  message,
+  isSender,
+  showSenderName,
+}: {
+  message: IMessageItem;
+  showSenderName: boolean;
+  isSender: boolean;
+}) => {
   const bubbleBg = isSender
     ? "bg-[#ff99e2] text-black"
     : "bg-[#3A3A3A] text-gray-100";
@@ -42,6 +47,11 @@ const MessageBubble = ({ message }: { message: IMessageItem }) => {
         <AvatarFallback className="bg-zinc-700">AV</AvatarFallback>
       </Avatar>
       <div className="flex flex-col items-start">
+        {showSenderName && (
+          <p className="text-xs text-gray-400 ml-3 mb-1">
+            {message?.senderId?.name}
+          </p>
+        )}
         <div
           className={`${bubbleBg} ${bubbleRadius} max-w-sm md:max-w-md lg:max-w-lg overflow-hidden`}
         >

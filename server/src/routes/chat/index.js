@@ -13,6 +13,11 @@ router.use(authentication);
 
 // Sidebar & user list
 router.get('/conversations', asyncHandler(chatController.getSidebar));
+router.get(
+    '/conversations/:id',
+    asyncHandler(chatController.getDetailConversation),
+);
+
 router.get('/users', asyncHandler(chatController.getUsers));
 
 // find or create conversation
