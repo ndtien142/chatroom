@@ -10,7 +10,7 @@ import AddFriendModal from "../dialog/ModelAddNewFriend";
 import { useSelector } from "@/common/redux/store";
 
 const Sidebar = () => {
-  const { data, isLoading } = useGetListUserSidebar({
+  const { data } = useGetListUserSidebar({
     limit: 10,
     page: 1,
     searchText: "",
@@ -50,13 +50,12 @@ const Sidebar = () => {
 
         <nav className="flex-1 overflow-y-auto p-2 space-y-1">
           <ul>
-            {!isLoading &&
-              conversation?.map((conversation, idx) => (
-                <ChattingMSGItem
-                  key={`${conversation?._id} + ${idx}`}
-                  conversation={conversation}
-                />
-              ))}
+            {conversation?.map((conversation, idx) => (
+              <ChattingMSGItem
+                key={`${conversation?._id} + ${idx}`}
+                conversation={conversation}
+              />
+            ))}
           </ul>
         </nav>
 

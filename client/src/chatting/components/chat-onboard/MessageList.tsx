@@ -57,7 +57,9 @@ const MessageList = () => {
         </div>
       )}
       {messages?.map((msg, idx) => {
-        const isCurrentUser = msg.senderId?._id === currentUser;
+        const isCurrentUser =
+          msg.senderId?._id === currentUser ||
+          currentUser === (msg.senderId as unknown as string);
 
         const showSenderName =
           detailConversation?.metadata?.type === "group" &&
