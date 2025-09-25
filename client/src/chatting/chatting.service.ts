@@ -1,5 +1,6 @@
 import axiosInstance from "@/common/utils/axios";
 import type {
+  IDataAddNewFriend,
   IDetailConversationResponse,
   IGetListUserParams,
   IGetMessageParams,
@@ -51,4 +52,9 @@ export const createGroup = (data: FormData) => {
   return axiosInstance.post(API_GROUP_CHAT, data, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+};
+
+export const findOrCreateConversation = (data: IDataAddNewFriend) => {
+  const url = `${API_CHATTING_USERS}/private`;
+  return axiosInstance.post(url, data);
 };

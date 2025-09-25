@@ -27,6 +27,10 @@ class ChatService {
                     select: 'name avatar email',
                 },
             })
+            .populate({
+                path: 'participants.userId',
+                select: 'name avatar email',
+            })
             .lean();
 
         const totalConversations = await conversationModel.countDocuments({

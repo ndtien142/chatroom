@@ -96,7 +96,7 @@ export function CreateGroupModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-neutral-900">
+      <DialogContent className="sm:max-w-md w-full bg-[#2f2f2f] border-none text-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
             Create chatroom

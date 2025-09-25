@@ -12,9 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import type { IUser } from "@/chatting/chatting.interface";
+import { useGetListUser } from "@/chatting/hooks/useGetListUser";
+import _ from "lodash";
+import { useStartSpecificChat } from "@/chatting/hooks/useStartSpecificChat";
 
 interface AddFriendModalProps {
   open: boolean;
@@ -27,26 +30,43 @@ export default function AddFriendModal({
   onOpenChange,
   onSelectUser,
 }: AddFriendModalProps) {
-  const [search, setSearch] = useState("");
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const [rawSearch, setRawSearch] = useState<string>("");
   const [selected, setSelected] = useState<IUser | null>(null);
 
-  // Fake search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setUsers([]);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search]);
+  const { data: users } = useGetListUser({
+    limit: 10,
+    page: 1,
+    searchText: search,
+  });
+
+  const { mutate } = useStartSpecificChat();
+
+  const debounceSearchText = useCallback(
+    _.debounce((value: string) => {
+      if (value.trim() === "") return;
+      setSearch(value.trim());
+    }, 300),
+    []
+  );
 
   const handleConfirm = () => {
-    if (selected) onSelectUser(selected);
+    if (!selected) return;
+    onSelectUser(selected);
+    mutate({ recipientId: selected._id });
+
     onOpenChange(false);
   };
 
+  useEffect(() => {
+    return () => {
+      debounceSearchText.cancel();
+    };
+  }, [debounceSearchText]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md w-full bg-neutral-900">
+      <DialogContent className="sm:max-w-md w-full bg-[#2f2f2f] border-none text-white">
         <DialogHeader>
           <DialogTitle>Make friend</DialogTitle>
           <DialogDescription>Choose a friend user know!!</DialogDescription>
@@ -54,43 +74,58 @@ export default function AddFriendModal({
 
         <Input
           placeholder="Search user by name or username...."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={rawSearch}
+          onChange={(e) => {
+            setRawSearch(e.target.value);
+            debounceSearchText(e.target.value);
+          }}
           className="mb-3"
         />
 
         <ScrollArea className="max-h-72 pr-2">
           <div className="space-y-2">
-            {users.map((user) => (
-              <button
-                key={user._id}
-                type="button"
-                onClick={() =>
-                  setSelected((prev) => (prev?._id === user._id ? null : user))
-                }
-                className={`w-full flex items-center justify-between rounded-md px-2 py-2 hover:bg-muted
-                  ${selected?._id === user._id ? "bg-muted" : ""}`}
-              >
-                <div className="flex items-center gap-3 text-left">
-                  <Avatar className="h-8 w-8">
-                    {user.avatar ? (
-                      <AvatarImage src={user.avatar} />
-                    ) : (
-                      <AvatarFallback>
-                        {user.name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                  <span>{user.name}</span>
-                </div>
-                {selected?._id === user._id && <Check size={18} />}
-              </button>
-            ))}
-            {users.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground">
+            {users?.length === 0 && (
+              <p className="text-center text-sm text-gray-400 mt-2">
                 User not found
               </p>
             )}
+
+            {users?.map((user) => {
+              const isSelected = selected?._id === user._id;
+
+              return (
+                <button
+                  key={user._id}
+                  type="button"
+                  onClick={() =>
+                    setSelected((prev) =>
+                      prev?._id === user._id ? null : user
+                    )
+                  }
+                  className={`
+            w-full flex items-center justify-between p-3 rounded-xl transition-colors
+            ${isSelected ? "bg-blue-600/40" : "hover:bg-gray-800/60"}
+          `}
+                >
+                  <div className="flex items-center gap-3 text-left">
+                    <Avatar className="h-10 w-10">
+                      {user.avatar ? (
+                        <AvatarImage src={user.avatar} />
+                      ) : (
+                        <AvatarFallback className="bg-zinc-700">
+                          {user.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div>
+                      <p className="font-semibold text-white">{user.name}</p>
+                      <p className="text-sm text-gray-400">@{user.username}</p>
+                    </div>
+                  </div>
+                  {isSelected && <Check className="w-5 h-5 text-white" />}
+                </button>
+              );
+            })}
           </div>
         </ScrollArea>
 
@@ -98,7 +133,7 @@ export default function AddFriendModal({
           <Button
             disabled={!selected}
             onClick={handleConfirm}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto bg-[#ff99e2] text-black"
           >
             Start chatting
           </Button>

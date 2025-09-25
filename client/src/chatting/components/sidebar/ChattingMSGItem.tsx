@@ -14,6 +14,7 @@ const ChattingMSGItem = ({
   const currentConversation = useSelector(
     (state) => state.chatting?.selectedConversation
   );
+  const currentUser = useSelector((state) => state.authLogin.userInfo._id);
   const handleSelectConversation = () => {
     dispatch(setSelectedConversation(conversation?._id));
   };
@@ -33,7 +34,12 @@ const ChattingMSGItem = ({
       <div className="ml-4 flex-grow overflow-hidden">
         <div className="flex justify-between items-baseline">
           <p className="text-md font-semibold text-gray-100 truncate">
-            {conversation.name}
+            {conversation?.type === "group" && conversation.name}
+            {(conversation?.type === "direct" &&
+              conversation?.participants?.find(
+                (user) => user?.userId?._id !== currentUser
+              )?.userId?.name) ||
+              ""}
           </p>
           <p className="text-xs text-gray-400 flex-shrink-0">
             {formatTimestamp(conversation.lastMessage?.createdAt)}

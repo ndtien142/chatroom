@@ -62,7 +62,7 @@ export interface IConversationItem {
 export interface IListParticipantItem {
   joinedAt: string;
   role: "member" | "admin";
-  userId: string;
+  userId: IUser;
   _id: string;
 }
 
@@ -132,4 +132,8 @@ export interface IDetailConversationResponse {
   message: string;
   code: number;
   metadata: IConversationItem;
+}
+
+export interface IDataAddNewFriend {
+  recipientId: string;
 }

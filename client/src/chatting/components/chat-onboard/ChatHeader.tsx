@@ -7,13 +7,20 @@ import {
   PhoneIcon,
   VideoIcon,
 } from "lucide-react";
-import { dispatch } from "@/common/redux/store";
+import { dispatch, useSelector } from "@/common/redux/store";
 import { setLogout } from "@/auth/auth.slice";
+import { useGetDetailConversation } from "@/chatting/hooks/useGetDetailConversation";
 
 const ChatHeader = () => {
   const handleLogout = () => {
     dispatch(setLogout());
   };
+  const currentConversationId = useSelector(
+    (state) => state.chatting.selectedConversation
+  );
+  const currentUser = useSelector((state) => state.authLogin.userInfo._id);
+
+  const { data } = useGetDetailConversation(currentConversationId || "");
 
   return (
     <header className="flex items-center justify-between p-2.5 bg-[#2F2F2F] border-b border-gray-700/50">
@@ -23,16 +30,20 @@ const ChatHeader = () => {
         </button>
 
         <Avatar>
-          <AvatarImage src="avatar" />
+          <AvatarImage src={data?.metadata?.avatar} />
           <AvatarFallback className="dark:bg-zinc-400 bg-zinc-800">
             AV
           </AvatarFallback>
         </Avatar>
         <div className="ml-4">
           <h2 className="text-sm font-semibold text-white">
-            {"Tieens nguyen day"}
+            {data?.metadata?.type === "group" && data?.metadata.name}
+            {(data?.metadata?.type === "direct" &&
+              data?.metadata?.participants?.find(
+                (user) => user?.userId?._id !== currentUser
+              )?.userId?.name) ||
+              ""}
           </h2>
-          <p className="text-xs text-green-400">Online</p>
         </div>
       </div>
       <div className="flex items-center space-x-2 sm:space-x-4">
