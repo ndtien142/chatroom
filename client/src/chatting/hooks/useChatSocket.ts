@@ -69,7 +69,7 @@ export const useChatSocket = (userId: string) => {
               const updatedItems = page.metadata.items.map((conversation) => {
                 if (conversation._id === message.conversationId) {
                   const newParticipants = conversation.participants.map((p) =>
-                    p.userId === userId ? { ...p, unreadCount: 0 } : p
+                    p.userId?._id === userId ? { ...p, unreadCount: 0 } : p
                   );
 
                   return {

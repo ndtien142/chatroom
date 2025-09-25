@@ -13,7 +13,7 @@ const { app, server } = require('./src/lib/socket.lib');
 app.use(express.json());
 app.use(
     cors({
-        origin: ['http://localhost:5173'],
+        origin: ['https://chatroom-fronend.onrender.com'],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         credentials: true,
     }),
