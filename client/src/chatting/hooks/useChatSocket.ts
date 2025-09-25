@@ -7,6 +7,7 @@ import type {
   IMessageItem,
 } from "../chatting.interface";
 import { QUERY_KEY } from "@/common/constants/querykey.constant";
+import { SOCKET_URL } from "@/common/constants/config";
 
 let socket: Socket | null = null;
 
@@ -15,7 +16,7 @@ export const useChatSocket = (userId: string) => {
 
   useEffect(() => {
     if (userId) {
-      socket = io("http://localhost:3055", { auth: { userId } });
+      socket = io(SOCKET_URL, { auth: { userId } });
 
       socket.on("receive_message", (message: IMessageItem) => {
         queryClient.setQueryData<InfiniteData<IListMessageResponse>>(

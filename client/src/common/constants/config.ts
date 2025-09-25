@@ -1,5 +1,6 @@
 export const BASE_URL = import.meta.env.VITE_BASE_URL_API;
 export const API_KEY = import.meta.env.VITE_API_KEY;
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
 // Firebase
 export const FIREBASE_API_KEY = import.meta.env.VITE_FIREBASE_API_KEY;
